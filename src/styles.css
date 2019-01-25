@@ -75,10 +75,16 @@ body {
   background: orange;
 }
 
-.steps {
+.score-nums {
   display: flex;
   color: white;
   font-size: 15px;
   font-family: "Courier New", Courier, monospace, monospace;
   align-items: center;
+}
+
+.score-column {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
 }

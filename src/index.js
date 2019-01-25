@@ -11,6 +11,7 @@ let isEnd = false;
 let counter = 0;
 let simulatePlayer = new Player();
 let maxCounter = 0;
+let score = 1; // 1 for initial decrement
 onGameStart();
 
 // returns number of steps it took for the autoplayer to win
@@ -34,6 +35,12 @@ function rerender() {
 }
 
 function onGameStart() {
+  if (board.isWinning()) {
+    score += maxCounter - counter;
+  } else {
+    score--;
+  }
+
   board.reset();
   isEnd = false;
   counter = 0;
@@ -82,15 +89,22 @@ function App() {
               />
             );
           })}
-          <div className="steps">
-            <span>Steps: {counter}</span>
+          <div className="score-nums">
+            <div className="score-column">
+              <span>Steps: {counter}</span>
+              <span>Score: {score}</span>
+            </div>
           </div>
         </div>
       </div>
       <div id="overlay" style={{ display: isEnd ? "flex" : "none" }}>
         {board.isWinning()
-          ? "You won in " + counter + " steps! Congratulations!"
-          : "You lost :( Try again, please"}
+          ? "You won in " +
+            counter +
+            " steps! Congratulations! +" +
+            (maxCounter - counter) +
+            " points"
+          : "You lost -1 point :( Try again, please"}
       </div>
     </div>
   );
