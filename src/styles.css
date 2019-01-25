@@ -12,6 +12,13 @@ body {
   height: 100%;
 }
 
+.hint {
+  color: white;
+  font-size: 30px;
+  font-family: "Courier New", Courier, monospace, monospace;
+  margin-bottom: 10px;
+}
+
 #overlay {
   position: fixed; /* Sit on top of the page content */
   display: none; /* Hidden by default */
@@ -47,11 +54,6 @@ body {
   margin-left: 10px;
 }
 
-.control .elem.auto {
-  background: white;
-  text-align: center;
-}
-
 .control .elem:hover {
   filter: brightness(95%);
 }
@@ -71,4 +73,12 @@ body {
 
 .color-3 {
   background: orange;
+}
+
+.steps {
+  display: flex;
+  color: white;
+  font-size: 15px;
+  font-family: "Courier New", Courier, monospace, monospace;
+  align-items: center;
 }

@@ -102,8 +102,8 @@ it("if we clone the board, tiles are different object but contain the same data"
   let n = 6;
   let m = 3;
   let board = new Board(n, m);
-  let cloneBoard = board.clone();
+  let boardClone = board.clone();
 
-  expect(board.tiles).not.toBe(cloneBoard.tiles);
-  expect(board.tiles).toEqual(cloneBoard.tiles);
+  expect(board.tiles).not.toBe(boardClone.tiles);
+  expect(board.tiles).toEqual(boardClone.tiles);
 });

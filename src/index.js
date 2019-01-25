@@ -7,48 +7,61 @@ import { Player } from "./services/player";
 
 let m = 3;
 let board = new Board(6, m);
-let isWin = false;
+let isEnd = false;
 let counter = 0;
 let simulatePlayer = new Player();
 let maxCounter = 0;
+onGameStart();
 
-let rerender = () => {
+// returns number of steps it took for the autoplayer to win
+function simulate(): number {
+  let options = [...Array(m).keys()].map(x => x + 1);
+  let boardClone = board.clone();
+  let counter = 0;
+
+  while (!boardClone.isWinning()) {
+    counter++;
+    let bestStep = simulatePlayer.bestStep(boardClone.tiles, options);
+    boardClone.changeTile(bestStep);
+  }
+
+  return counter;
+}
+
+function rerender() {
   const rootElement = document.getElementById("root");
   ReactDOM.render(<App />, rootElement);
-};
-
-let changeColor = el => {
-  board.changeTile(el);
-};
-
-let autoStep = () => {
-  let options = [...Array(m).keys()].map(x => x + 1);
-  let bestStep = simulatePlayer.bestStep(board.tiles, options);
-  changeColor(bestStep);
-};
+}
 
 function onGameStart() {
   board.reset();
-  isWin = false;
+  isEnd = false;
   counter = 0;
-  maxCounter = 0;
+  maxCounter = simulate();
   rerender();
 }
 
 function onGameStep() {
   counter++;
-  isWin = board.isWinning();
   rerender();
-  if (isWin) {
+  console.warn(counter);
+  isEnd = board.isWinning() || counter >= maxCounter;
+  if (isEnd) {
     new Promise(resolve => setTimeout(resolve, 2500)).then(() => {
       onGameStart();
     });
   }
 }
 
+function changeColor(el: number) {
+  board.changeTile(el);
+  onGameStep();
+}
+
 function App() {
   return (
     <div className="App">
+      <div className="hint">Win the game in {maxCounter} steps </div>
       <div className="board">
         {board.tiles.map(line => {
           var lines = line.map(el => {
@@ -67,13 +80,15 @@ function App() {
               />
             );
           })}
-          <div onClick={autoStep} className="elem auto">
-            Auto
+          <div className="steps">
+            <span>Steps: {counter}</span>
           </div>
         </div>
       </div>
-      <div id="overlay" style={{ display: isWin ? "flex" : "none" }}>
-        You won in {counter} steps! Congratulations!
+      <div id="overlay" style={{ display: isEnd ? "flex" : "none" }}>
+        {board.isWinning()
+          ? "You won in " + counter + " steps! Congratulations!"
+          : "You lost :( Try again, please"}
       </div>
     </div>
   );
