@@ -9,33 +9,42 @@ let m = 3;
 let board = new Board(6, m);
 let isWin = false;
 let counter = 0;
-let player = new Player();
+let simulatePlayer = new Player();
+let maxCounter = 0;
 
 let rerender = () => {
   const rootElement = document.getElementById("root");
   ReactDOM.render(<App />, rootElement);
 };
 
-let changeColor = async el => {
-  counter++;
+let changeColor = el => {
   board.changeTile(el);
-  isWin = board.isWinning();
-  rerender();
-  if (isWin) {
-    new Promise(resolve => setTimeout(resolve, 2500)).then(() => {
-      board.reset();
-      isWin = false;
-      counter = 0;
-      rerender();
-    });
-  }
 };
 
 let autoStep = () => {
   let options = [...Array(m).keys()].map(x => x + 1);
-  let bestStep = player.bestStep(board.tiles, options);
+  let bestStep = simulatePlayer.bestStep(board.tiles, options);
   changeColor(bestStep);
 };
+
+function onGameStart() {
+  board.reset();
+  isWin = false;
+  counter = 0;
+  maxCounter = 0;
+  rerender();
+}
+
+function onGameStep() {
+  counter++;
+  isWin = board.isWinning();
+  rerender();
+  if (isWin) {
+    new Promise(resolve => setTimeout(resolve, 2500)).then(() => {
+      onGameStart();
+    });
+  }
+}
 
 function App() {
   return (

@@ -54,4 +54,12 @@ export class Board {
   get tiles() {
     return this._tiles;
   }
+
+  clone() {
+    let newTiles = [];
+
+    for (var row of this._tiles) newTiles.push(row.slice());
+
+    return new Board(this.n, this.m, newTiles);
+  }
 }
