@@ -44,7 +44,6 @@ function onGameStart() {
 function onGameStep() {
   counter++;
   rerender();
-  console.warn(counter);
   isEnd = board.isWinning() || counter >= maxCounter;
   if (isEnd) {
     new Promise(resolve => setTimeout(resolve, 2500)).then(() => {
@@ -54,6 +53,9 @@ function onGameStep() {
 }
 
 function changeColor(el: number) {
+  // if same color
+  if (board.tiles[0][0] === el) return;
+
   board.changeTile(el);
   onGameStep();
 }
