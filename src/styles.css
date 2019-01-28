@@ -12,6 +12,10 @@ body {
   height: 100%;
 }
 
+.highlight {
+  color: red;
+}
+
 .hint {
   color: white;
   font-size: 30px;
@@ -73,6 +77,14 @@ body {
 
 .color-3 {
   background: orange;
+}
+
+.color-4 {
+  background: greenyellow;
+}
+
+.color-5 {
+  background: purple;
 }
 
 .score-nums {

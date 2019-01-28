@@ -9,8 +9,8 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.n = 6;
-    this.m = 3;
+    this.n = 8;
+    this.m = 5;
 
     this.options = [...Array(this.m).keys()].map(x => x + 1);
 
@@ -57,7 +57,7 @@ class App extends React.Component {
       isEnd: false,
       counter: 0,
       maxCounter: this.simulate(),
-      score: this.state.score
+      score: newScore
     });
   }
 
@@ -94,7 +94,8 @@ class App extends React.Component {
     return (
       <div className="App">
         <div className="hint">
-          Win the game in {this.state.maxCounter} steps{" "}
+          Win the game in <b className="highlight">{this.state.maxCounter}</b>{" "}
+          steps{" "}
         </div>
         <div className="board">
           {this.state.board.tiles.map(line => {
@@ -106,7 +107,7 @@ class App extends React.Component {
         </div>
         <div className="control">
           <div className="line">
-            {[1, 2, 3].map(el => {
+            {this.options.map(el => {
               return (
                 <div
                   onClick={() => this.changeColor(el)}
@@ -116,8 +117,8 @@ class App extends React.Component {
             })}
             <div className="score-nums">
               <div className="score-column">
-                <span>Steps: {this.state.counter}</span>
-                <span>Score: {this.state.score}</span>
+                <span>⏱️ {this.state.counter}</span>
+                <span>⭐ {this.state.score}</span>
               </div>
             </div>
           </div>
