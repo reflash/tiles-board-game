@@ -5,109 +5,138 @@ import "./styles.css";
 import { Board } from "./services/board";
 import { Player } from "./services/player";
 
-let m = 3;
-let board = new Board(6, m);
-let isEnd = false;
-let counter = 0;
-let simulatePlayer = new Player();
-let maxCounter = 0;
-let score = 1; // 1 for initial decrement
-onGameStart();
+class App extends React.Component {
+  constructor(props) {
+    super(props);
 
-// returns number of steps it took for the autoplayer to win
-function simulate(): number {
-  let options = [...Array(m).keys()].map(x => x + 1);
-  let boardClone = board.clone();
-  let counter = 0;
+    this.n = 6;
+    this.m = 3;
 
-  while (!boardClone.isWinning()) {
-    counter++;
-    let bestStep = simulatePlayer.bestStep(boardClone.tiles, options);
-    boardClone.changeTile(bestStep);
+    this.options = [...Array(this.m).keys()].map(x => x + 1);
+
+    this.state = {
+      board: new Board(this.n, this.m),
+      simulatedPlayer: new Player(),
+
+      isEnd: false,
+      counter: 0,
+      score: 0
+    };
+
+    this.state.maxCounter = this.simulate();
   }
 
-  return counter;
-}
+  // returns number of steps it took for the autoplayer to win
+  simulate(): number {
+    let boardClone = this.state.board.clone();
+    let counter = 0;
 
-function rerender() {
-  const rootElement = document.getElementById("root");
-  ReactDOM.render(<App />, rootElement);
-}
+    while (!boardClone.isWinning()) {
+      counter++;
+      let bestStep = this.state.simulatedPlayer.bestStep(
+        boardClone.tiles,
+        this.options
+      );
+      boardClone.changeTile(bestStep);
+    }
 
-function onGameStart() {
-  if (board.isWinning()) {
-    score += maxCounter - counter;
-  } else {
-    score--;
+    return counter;
   }
 
-  board.reset();
-  isEnd = false;
-  counter = 0;
-  maxCounter = simulate();
-  rerender();
-}
+  onGameStart() {
+    let newScore = this.state.board.isWinning()
+      ? this.state.score + this.state.maxCounter - this.state.counter
+      : this.state.score - 1;
 
-function onGameStep() {
-  counter++;
-  rerender();
-  isEnd = board.isWinning() || counter >= maxCounter;
-  if (isEnd) {
-    new Promise(resolve => setTimeout(resolve, 2500)).then(() => {
-      onGameStart();
+    this.state.board.reset();
+
+    this.setState({
+      board: this.state.board,
+      simulatedPlayer: this.state.simulatedPlayer,
+
+      isEnd: false,
+      counter: 0,
+      maxCounter: this.simulate(),
+      score: this.state.score
     });
   }
-}
 
-function changeColor(el: number) {
-  // if same color
-  if (board.tiles[0][0] === el) return;
+  onGameStep() {
+    let isEnd =
+      this.state.board.isWinning() ||
+      this.state.counter + 1 >= this.state.maxCounter;
+    this.setState({
+      board: this.state.board,
+      simulatedPlayer: this.state.simulatedPlayer,
 
-  board.changeTile(el);
-  onGameStep();
-}
+      isEnd: isEnd,
+      counter: this.state.counter + 1,
+      maxCounter: this.state.maxCounter,
+      score: this.state.score
+    });
 
-function App() {
-  return (
-    <div className="App">
-      <div className="hint">Win the game in {maxCounter} steps </div>
-      <div className="board">
-        {board.tiles.map(line => {
-          var lines = line.map(el => {
-            return <div className={"elem color-" + el.toString()} />;
-          });
-          return <div className="line">{lines}</div>;
-        })}
-      </div>
-      <div className="control">
-        <div className="line">
-          {[1, 2, 3].map(el => {
-            return (
-              <div
-                onClick={() => changeColor(el)}
-                className={"elem color-" + el.toString()}
-              />
-            );
+    if (isEnd) {
+      new Promise(resolve => setTimeout(resolve, 2500)).then(() => {
+        this.onGameStart();
+      });
+    }
+  }
+
+  changeColor(el: number) {
+    // if same color
+    if (this.state.board.tiles[0][0] === el) return;
+
+    this.state.board.changeTile(el);
+    this.onGameStep();
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <div className="hint">
+          Win the game in {this.state.maxCounter} steps{" "}
+        </div>
+        <div className="board">
+          {this.state.board.tiles.map(line => {
+            var lines = line.map(el => {
+              return <div className={"elem color-" + el.toString()} />;
+            });
+            return <div className="line">{lines}</div>;
           })}
-          <div className="score-nums">
-            <div className="score-column">
-              <span>Steps: {counter}</span>
-              <span>Score: {score}</span>
+        </div>
+        <div className="control">
+          <div className="line">
+            {[1, 2, 3].map(el => {
+              return (
+                <div
+                  onClick={() => this.changeColor(el)}
+                  className={"elem color-" + el.toString()}
+                />
+              );
+            })}
+            <div className="score-nums">
+              <div className="score-column">
+                <span>Steps: {this.state.counter}</span>
+                <span>Score: {this.state.score}</span>
+              </div>
             </div>
           </div>
         </div>
+        <div
+          id="overlay"
+          style={{ display: this.state.isEnd ? "flex" : "none" }}
+        >
+          {this.state.board.isWinning()
+            ? "You won in " +
+              this.state.counter +
+              " steps! Congratulations! +" +
+              (this.state.maxCounter - this.state.counter) +
+              " points"
+            : "You lost -1 point :( Try again, please"}
+        </div>
       </div>
-      <div id="overlay" style={{ display: isEnd ? "flex" : "none" }}>
-        {board.isWinning()
-          ? "You won in " +
-            counter +
-            " steps! Congratulations! +" +
-            (maxCounter - counter) +
-            " points"
-          : "You lost -1 point :( Try again, please"}
-      </div>
-    </div>
-  );
+    );
+  }
 }
 
 const rootElement = document.getElementById("root");
